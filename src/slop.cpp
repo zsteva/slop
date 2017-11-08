@@ -246,6 +246,7 @@ slop::SlopSelection slop::GLSlopSelect( slop::SlopOptions* options, SlopWindow* 
     // This is where we'll run through all of our stuffs
     auto start = std::chrono::high_resolution_clock::now();
     auto last = start;
+	bool selected = false;
     while( memory->running ) {
         slop::mouse->update();
         if ( !options->nokeyboard ) {
@@ -321,6 +322,8 @@ slop::SlopSelection slop::GLSlopSelect( slop::SlopOptions* options, SlopWindow* 
             cancelled = true;
         }
     }
+
+	sleep(5);
 
     // Now we should have a selection! We parse everything we know about it here.
     glm::vec4 output = memory->rectangle->getRect();

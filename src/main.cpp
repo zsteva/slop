@@ -194,6 +194,7 @@ void printHelp() {
     std::cout << "                                  are %x, %y, %w, %h, %i, %g, and %c.\n";
     std::cout << "                                  (default=`%g\n')\n";
     std::cout << "  -o, --noopengl                Disable graphics acceleration.\n";
+	std::cout << "  -e, --exec                    Execute command, format specifiers applied.\n";
     std::cout << "Examples\n";
     std::cout << "    $ # Gray, thick, transparent border for maximum visiblity.\n";
     std::cout << "    $ slop -b 20 -c 0.5,0.5,0.5,0.8\n";
@@ -236,6 +237,7 @@ int app( int argc, char** argv ) {
     ("k,nokeyboard", "Disables the ability to cancel selections with the keyboard.")
     ("o,noopengl", "Disables graphics hardware acceleration.")
     ("positional", "Positional parameters", cxxopts::value<std::vector<std::string>>())
+	("e,exec", "Execute command", cxxopts::value<std::string>())
     ;
     options.parse_positional("positional");
     options.parse(argc, argv);
@@ -273,6 +275,13 @@ int app( int argc, char** argv ) {
         formatOutput( format, selection );
     }
 
+	bool gotExec = options.count( "exec" ) > 0;
+	std::string execParam;
+	if ( gotExec ) {
+		execParam = options["exec"].as<std::string>();
+		formatOutput( execParam, selection );
+	}
+
     // Finally we do the real selection.
     selection = SlopSelect(parsedOptions);
     
@@ -285,6 +294,16 @@ int app( int argc, char** argv ) {
         }
         return 1;
     }
+
+	if ( gotExec ) {
+		std::string command = formatOutput( execParam, selection );
+        char* ccommand = new char[command.length()+1];
+        memcpy( ccommand, command.c_str(), command.length() );
+        ccommand[command.length()]='\0';
+		std::cout << "Command: " << command << "\n";
+		system(ccommand);
+	}
+
     // If we recieved a format option, we output the specified output.
     if ( gotFormat ) {
         std::cout << formatOutput( format, selection );
